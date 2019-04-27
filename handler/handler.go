@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"cloud-storage/meta"
+	"cloud-storage/util"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 )
 
 //UploadHandler:处理文件上传
@@ -28,8 +31,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
+		fileMeta := meta.FileMeta{
+			FileName:head.Filename,
+			Location:"/tmp/" +head.Filename,
+			UploadAt:time.Now().Format("2006-01-02 15:04:05"),
+		}
+
 		//本地创建存储文件路径
-		newFile, err := os.Create("/tmp/" + head.Filename)
+		newFile, err := os.Create(fileMeta.Location)
 		if err != nil {
 			fmt.Printf("Failed to create file,err:%s\n",err.Error())
 			return
@@ -37,11 +46,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		defer newFile.Close()
 
 		//将内存中文件copy到新的文件buf区
-		_,err = io.Copy(newFile,file)
+		fileMeta.FileSize,err = io.Copy(newFile,file)
 		if err != nil {
 			fmt.Printf("Failed to save data into faile,err:%s\n",err.Error())
 			return
 		}
+		newFile.Seek(0,0)
+		fileMeta.FileSha1 = util.FileSha1(newFile)
+		meta.UpdateFileMeta(fileMeta)
 
 		//保存返回正确信息
 		http.Redirect(w,r,"/file/upload/suc",http.StatusFound)
