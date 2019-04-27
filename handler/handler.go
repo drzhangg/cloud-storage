@@ -3,6 +3,7 @@ package handler
 import (
 	"cloud-storage/meta"
 	"cloud-storage/util"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,7 +24,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		io.WriteString(w, string(data))
 	} else if r.Method == "POST" {
-		//接收文件流及存储到本地目录
+		//选取本地文件，form形式上传文件
 		file, head, err := r.FormFile("file") // 从页面读取接收的文件
 		if err != nil {
 			fmt.Printf("Failed to get data,err:%s\n", err.Error())
@@ -37,7 +38,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 			UploadAt:time.Now().Format("2006-01-02 15:04:05"),
 		}
 
-		//本地创建存储文件路径
+		//云端接收文件流，写入本地存储
 		newFile, err := os.Create(fileMeta.Location)
 		if err != nil {
 			fmt.Printf("Failed to create file,err:%s\n",err.Error())
@@ -45,7 +46,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer newFile.Close()
 
-		//将内存中文件copy到新的文件buf区
+		//云端更新文件元信息集合
 		fileMeta.FileSize,err = io.Copy(newFile,file)
 		if err != nil {
 			fmt.Printf("Failed to save data into faile,err:%s\n",err.Error())
@@ -63,4 +64,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 //UploadSucHandler:上传已完成
 func UploadSucHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w,"Upload finished!")
+}
+
+//GetFileMetaHandler:获取文件元信息
+func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	filehash := r.Form["filehash"][0]
+	fMeta := meta.GetFileMeta(filehash)
+	data,err := json.Marshal(fMeta)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
 }
