@@ -99,20 +99,50 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	fsha1 := r.Form.Get("filehash")
 	fm := meta.GetFileMeta(fsha1)
 
-	f,err := os.Open(fm.Location)
+	f, err := os.Open(fm.Location)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer f.Close()
 
-	data,err := ioutil.ReadAll(f)
+	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type","application/octect-stream")
-	w.Header().Set("Content-Dispotion","attachment;filename=\""+fm.FileName+"\"")
+	w.Header().Set("Content-Type", "application/octect-stream")
+	w.Header().Set("Content-Dispotion", "attachment;filename=\""+fm.FileName+"\"")
+	w.Write(data)
+}
+
+//FileMetaUpdateHandler：更新元信息接口(重命名)
+func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	opType := r.Form.Get("op")
+	fileSha1 := r.Form.Get("filehash")
+	newFileName := r.Form.Get("filename")
+
+	if opType != "0" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	curFileMeta := meta.GetFileMeta(fileSha1)
+	curFileMeta.FileName = newFileName
+	meta.UpdateFileMeta(curFileMeta)
+
+	data,err := json.Marshal(curFileMeta)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
