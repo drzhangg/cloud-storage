@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"cloud-storage/db/mysql"
 	"cloud-storage/meta"
 	"cloud-storage/util"
 	"encoding/json"
@@ -55,7 +56,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		newFile.Seek(0, 0)
 		fileMeta.FileSha1 = util.FileSha1(newFile)
-		meta.UpdateFileMeta(fileMeta)
+		//meta.UpdateFileMeta(fileMeta)
+		fmt.Println("mysql:",mysql.DBConn())
+		fg := meta.UpdateFileMetaDB(fileMeta)
+		fmt.Println("handler:",fg)
 
 		//保存返回正确信息
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)

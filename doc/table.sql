@@ -1,5 +1,5 @@
 -- 文件表 --
-drop table `tbl_file` if exists;
+drop table `tbl_file` if exists ;
 create table `tbl_file`(
   `id` int(11) not null auto_increment,
   `file_sha1` char (40) not null default '' comment '文件hash',
