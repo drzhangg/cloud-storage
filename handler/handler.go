@@ -86,10 +86,33 @@ func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
 	fileMetas := meta.GetLastFileMeta(limitCnt)
-	data,err := json.Marshal(fileMetas)
+	data, err := json.Marshal(fileMetas)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Write(data)
+}
+
+func DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	fsha1 := r.Form.Get("filehash")
+	fm := meta.GetFileMeta(fsha1)
+
+	f,err := os.Open(fm.Location)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+
+	data,err := ioutil.ReadAll(f)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type","application/octect-stream")
+	w.Header().Set("Content-Dispotion","attachment;filename=\""+fm.FileName+"\"")
 	w.Write(data)
 }
