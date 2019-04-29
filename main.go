@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	//文件上传相关接口
 	http.HandleFunc("/file/upload", handler.UploadHandler)        //处理文件上传接口
 	http.HandleFunc("/file/upload/suc", handler.UploadSucHandler) //文件上传成功接口
 	http.HandleFunc("/file/meta", handler.GetFileMetaHandler)
@@ -14,6 +15,9 @@ func main() {
 	http.HandleFunc("/file/download", handler.DownloadHandler)     //文件下载接口
 	http.HandleFunc("/file/update", handler.FileMetaUpdateHandler) //更新元信息接口(重命名)
 	http.HandleFunc("/file/delete", handler.FileDeleteHandler)     //删除文件接口
+
+	//用户相关接口
+	http.HandleFunc("/user/signup", handler.SignupHandler) //用户注册接口
 	err := http.ListenAndServe(":8089", nil)
 	if err != nil {
 		fmt.Printf("failed to start server,err:%s", err.Error())
