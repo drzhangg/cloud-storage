@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cloud-storage/db/mysql"
+	dblyer "cloud-storage/db"
 	"cloud-storage/meta"
 	"cloud-storage/util"
 	"encoding/json"
@@ -57,12 +57,21 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		newFile.Seek(0, 0)
 		fileMeta.FileSha1 = util.FileSha1(newFile)
 		//meta.UpdateFileMeta(fileMeta)
-		fmt.Println("mysql:",mysql.DBConn())
-		fg := meta.UpdateFileMetaDB(fileMeta)
-		fmt.Println("handler:",fg)
+		_ = meta.UpdateFileMetaDB(fileMeta)
 
-		//保存返回正确信息
-		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
+		//更新用户文件表
+		r.ParseForm()
+		username := r.Form.Get("username")
+
+		suc := dblyer.OnUserFileUploadFinished(username,fileMeta.FileSha1,fileMeta.FileName,fileMeta.FileSize)
+		if suc {
+			//保存返回正确信息
+			http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
+		}else {
+			w.Write([]byte("Upload Failed."))
+		}
+
+
 	}
 }
 
@@ -77,7 +86,7 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 
 	filehash := r.Form["filehash"][0]
 	//fMeta := meta.GetFileMeta(filehash)
-	fMeta,err := meta.GetFileMetaDB(filehash)
+	fMeta, err := meta.GetFileMetaDB(filehash)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -147,7 +156,7 @@ func FileMetaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	curFileMeta.FileName = newFileName
 	meta.UpdateFileMeta(curFileMeta)
 
-	data,err := json.Marshal(curFileMeta)
+	data, err := json.Marshal(curFileMeta)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

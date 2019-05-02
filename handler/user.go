@@ -88,6 +88,7 @@ func SiginInHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp.JsonBytes())
 }
 
+//UserInfoHandler：查询用户信息
 func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	//1.解析请求参数
 	r.ParseForm()
@@ -104,7 +105,7 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	//3.查询用户信息
 	user, err := dblayer.GetUserInfo(username)
 	if err != nil {
-		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 

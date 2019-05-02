@@ -67,42 +67,42 @@
 <script lang="javascript">
     window.onload = function () {
         var username = document.getElementById('username');
-        // $.ajax({
-        //     //url: "/user/info?" + queryParams(),
-        //     url: "/user/info?" + queryParams(),
-        //     type: "POST",
-        //     error: function (err) {
-        //         alert(err);
-        //     },
-        //     success: function (body) {
-        //         var resp = JSON.parse(body);
-        //         if (resp.code == 10005) {
-        //             window.location.href = "/static/view/signin.html";
-        //         }
-        //         document.getElementById("username").innerHTML = resp.data.Username;
-        //         document.getElementById("regtime").innerHTML = resp.data.SignupAt;
-        //         updateFileList();
-        //     }
-        // });
         $.ajax({
-
-            url:"/user/info",
+            //url: "/user/info?" + queryParams(),
+            url: "/user/info?" + queryParams(),
             type: "POST",
-            data:{username:localStorage.getItem("username"),
-                    token:localStorage.getItem("token")},
-            error:function (jqXHR, textStatus, errorThrown) {
-                if (textStatus == "error") {
-                    alert(textStatus + ":" + errorThrown)
-                }else {
-                    alert(textStatus);
-                }
+            error: function (err) {
+                alert(err);
             },
-            success:function (body, textStatus, jqXHR) {
+            success: function (body) {
                 var resp = JSON.parse(body);
+                if (resp.code == 10005) {
+                    window.location.href = "/static/view/signin.html";
+                }
                 document.getElementById("username").innerHTML = resp.data.Username;
                 document.getElementById("regtime").innerHTML = resp.data.SignupAt;
+                updateFileList();
             }
-        })
+        });
+        // $.ajax({
+        //
+        //     url:"/user/info",
+        //     type: "POST",
+        //     data:{username:localStorage.getItem("username"),
+        //             token:localStorage.getItem("token")},
+        //     error:function (jqXHR, textStatus, errorThrown) {
+        //         if (textStatus == "error") {
+        //             alert(textStatus + ":" + errorThrown)
+        //         }else {
+        //             alert(textStatus);
+        //         }
+        //     },
+        //     success:function (body, textStatus, jqXHR) {
+        //         var resp = JSON.parse(body);
+        //         document.getElementById("username").innerHTML = resp.data.Username;
+        //         document.getElementById("regtime").innerHTML = resp.data.SignupAt;
+        //     }
+        // })
     }
 
     function updateFileList() {
