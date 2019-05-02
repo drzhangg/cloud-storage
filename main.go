@@ -20,6 +20,7 @@ func main() {
 	//用户相关接口
 	http.HandleFunc("/user/signup", handler.SignupHandler)  //用户注册接口
 	http.HandleFunc("/user/signin", handler.SiginInHandler) //用户登录接口
+	http.HandleFunc("/user/info", handler.HTTPInterceptor(handler.UserInfoHandler))  //用户查询接口
 
 	fmt.Println("上传服务正在启动，监听端口:8080...")
 	err := http.ListenAndServe(":8080", nil)

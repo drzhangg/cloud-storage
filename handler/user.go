@@ -90,8 +90,31 @@ func SiginInHandler(w http.ResponseWriter, r *http.Request) {
 
 func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	//1.解析请求参数
+	r.ParseForm()
+	username := r.Form.Get("username")
+	//token := r.Form.Get("token")
 
 	//2.验证token
+	//isValidToken := IsTokenValid(token)
+	//if !isValidToken {
+	//	w.WriteHeader(http.StatusForbidden)
+	//	return
+	//}
+
+	//3.查询用户信息
+	user, err := dblayer.GetUserInfo(username)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	//4.组装并且响应用户数据
+	resp := util.RespMsg{
+		Code: 0,
+		Msg:  "OK",
+		Data: user,
+	}
+	w.Write(resp.JsonBytes())
 }
 
 //GenToken：生成访问凭证（token）
