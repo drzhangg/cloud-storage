@@ -9,7 +9,7 @@ import (
 func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	//文件上传相关接口
-	http.HandleFunc("/file/upload", handler.UploadHandler)        //处理文件上传接口
+	http.HandleFunc("/file/upload", handler.UploadFile)        //处理文件上传接口
 	http.HandleFunc("/file/upload/suc", handler.UploadSucHandler) //文件上传成功接口
 	http.HandleFunc("/file/meta", handler.GetFileMetaHandler)
 	http.HandleFunc("/file/query", handler.FileQueryHandler)       //文件查询信息接口

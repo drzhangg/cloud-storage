@@ -72,7 +72,8 @@
             url: "/user/info?" + queryParams(),
             type: "POST",
             error: function (err) {
-                alert(err);
+                alert("onload err:",err);
+                console.log("onload err:",err)
             },
             success: function (body) {
                 var resp = JSON.parse(body);
@@ -113,7 +114,8 @@
                 limit: 15
             },
             error: function (err) {
-                alert(err);
+                alert("update err:",err);
+                console.log("update err:",err)
             },
             success: function (body) {
                 if (!body) {
